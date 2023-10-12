@@ -1,0 +1,3 @@
+[submodule "elastic-beats"]
+	path = elastic-beats
+	url = https://github.com/elastic/beats.git
