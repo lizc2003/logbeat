@@ -1,5 +1,6 @@
 logging.level: debug
-logging.to_files: true
+logging.to_stderr: true
+logging.to_files: false
 logging.files:
   path: ./
   name: logbeat
@@ -11,7 +12,7 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-      - /tmp/record.log
+      - /tmp/test.log
     json:
       keys_under_root: true
       overwrite_keys: true
@@ -19,7 +20,7 @@ filebeat.inputs:
 
 #================================ clickhouse output ======================
 output.clickhouse:
-  addr: ["127.0.0.1:9000"]
+  addr: ["10.45.11.35:9000"]
   username: default
   password: "123456"
   table: ck_test
