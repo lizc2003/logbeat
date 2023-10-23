@@ -20,23 +20,23 @@ func makeClickhouse(
 ) (outputs.Group, error) {
 	var log = logp.NewLogger("clickhouse")
 
-	config := defaultConfig
-	if err := cfg.Unpack(&config); err != nil {
+	conf := defaultConfig
+	if err := cfg.Unpack(&conf); err != nil {
 		return outputs.Fail(err)
 	}
 
-	if len(config.Table) == 0 {
+	if len(conf.Table) == 0 {
 		errMsg := "clickhouse: the table name must be set"
 		log.Error(errMsg)
 		return outputs.Fail(errors.New(errMsg))
 	}
 
-	if len(config.Columns) == 0 {
+	if len(conf.Columns) == 0 {
 		errMsg := "clickhouse: the table columns must be set"
 		log.Error(errMsg)
 		return outputs.Fail(errors.New(errMsg))
 	}
 
-	cli := newClient(config, observer)
-	return outputs.SuccessNet(false, config.BulkMaxSize, config.MaxRetries, []outputs.NetworkClient{cli})
+	cli := newClient(conf, observer)
+	return outputs.SuccessNet(false, conf.BulkMaxSize, conf.MaxRetries, []outputs.NetworkClient{cli})
 }
