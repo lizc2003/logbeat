@@ -18,7 +18,7 @@ func makeClickhouse(
 	observer outputs.Observer,
 	cfg *config.C,
 ) (outputs.Group, error) {
-	var log = logp.NewLogger("clickhouse")
+	var log = logp.NewLogger(loggerName)
 
 	conf := defaultConfig
 	if err := cfg.Unpack(&conf); err != nil {

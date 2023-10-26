@@ -1,5 +1,9 @@
 package clickhouse
 
+const (
+	loggerName = "clickhouse"
+)
+
 type clickhouseConfig struct {
 	Addr        []string `config:"addr"`
 	Username    string   `config:"username"`

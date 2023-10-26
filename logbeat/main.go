@@ -24,6 +24,7 @@ import (
 	inputs "github.com/elastic/beats/v7/filebeat/input/default-inputs"
 
 	_ "logbeat/outputs/clickhouse"
+	_ "logbeat/outputs/http"
 )
 
 // The basic model of execution:

@@ -29,7 +29,7 @@ type client struct {
 
 func newClient(c clickhouseConfig, observer outputs.Observer) *client {
 	return &client{
-		log:       logp.NewLogger("clickhouse"),
+		log:       logp.NewLogger(loggerName),
 		observer:  observer,
 		addr:      c.Addr,
 		username:  c.Username,
