@@ -35,15 +35,14 @@ type clientSettings struct {
 	Username         string
 	Password         string
 	Headers          map[string]string
-	Parameters       map[string]string
 	CompressionLevel int
 	URL              string
 	BatchMode        bool
 	Channel          string
 	AppId            string
 
-	Observer  outputs.Observer
 	Transport httpcommon.HTTPTransportSettings
+	Observer  outputs.Observer
 }
 
 type client struct {
@@ -58,13 +57,14 @@ type client struct {
 type eventRaw map[string]json.RawMessage
 
 func newClient(s clientSettings) (*client, error) {
-	conn, err := NewConnection(s)
+	conn, err := NewConnection(&s)
 	if err != nil {
 		return nil, err
 	}
 
 	cli := &client{
 		conn:      conn,
+		observer:  s.Observer,
 		url:       s.URL,
 		batchMode: s.BatchMode,
 		channel:   s.Channel,

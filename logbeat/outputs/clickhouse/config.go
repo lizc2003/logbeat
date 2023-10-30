@@ -18,6 +18,6 @@ var (
 	defaultConfig = clickhouseConfig{
 		Addr:        []string{"127.0.0.1:9000"},
 		MaxRetries:  3,
-		BulkMaxSize: 1000,
+		BulkMaxSize: 100,
 	}
 )

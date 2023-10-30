@@ -20,7 +20,7 @@ type Connection struct {
 	headers  map[string]string
 }
 
-func NewConnection(s clientSettings) (*Connection, error) {
+func NewConnection(s *clientSettings) (*Connection, error) {
 	log := logp.NewLogger(loggerName)
 
 	u, err := url.Parse(s.URL)
