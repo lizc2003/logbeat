@@ -1,0 +1,27 @@
+logging.level: info
+logging.metrics.enabled: false
+logging.to_stderr: true
+logging.to_files: false
+logging.files:
+  path: ./
+  name: logbeat
+  keepfiles: 7
+  permissions: 0644
+
+#=========================== Filebeat inputs =============================
+filebeat.inputs:
+  - type: filestream
+    id: test-ob
+    enabled: true
+    paths:
+      - /tmp/testob.log
+
+#================================ clickhouse output ======================
+output.http:
+  protocol: http
+  hosts: ["dev.metacard.gg:5080"]
+  path: /api/default/default/_json
+  username: root@example.com
+  password: gaLHq9KNXY5kc34V
+  batch_mode: true
+  channel: openobserve

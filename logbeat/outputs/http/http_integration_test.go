@@ -15,6 +15,7 @@ import (
 
 func TestPublish(t *testing.T) {
 	cfg := map[string]any{
+		"protocol":   "http",
 		"hosts":      []string{"dev.metacard.gg:5080"},
 		"path":       "/api/default/default/_json",
 		"username":   "root@example.com",
