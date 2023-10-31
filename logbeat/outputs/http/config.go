@@ -27,6 +27,7 @@ const (
 	loggerName = "httpout"
 
 	idleConnectTimeout = 1 * time.Minute
+	maxRetries         = 3
 	backoffInit        = 1 * time.Second
 	backoffMax         = 60 * time.Second
 
@@ -49,7 +50,6 @@ type httpConfig struct {
 	LoadBalance      bool              `config:"loadbalance"`
 	CompressionLevel int               `config:"compression_level" validate:"min=0, max=9"`
 	BulkMaxSize      int               `config:"bulk_max_size"`
-	MaxRetries       int               `config:"max_retries"`
 	BatchMode        bool              `config:"batch_mode"`
 	Channel          string            `config:"channel"`
 	AppId            string            `config:"app_id"`
@@ -64,7 +64,6 @@ func (c *httpConfig) Validate() error {
 var (
 	defaultConfig = httpConfig{
 		BulkMaxSize: 50,
-		MaxRetries:  3,
 		LoadBalance: true,
 		Transport:   httpcommon.DefaultHTTPTransportSettings(),
 	}

@@ -11,10 +11,10 @@ logging.files:
 #=========================== Filebeat inputs =============================
 filebeat.inputs:
   - type: filestream
-    id: test-log
+    id: test-ck
     enabled: true
     paths:
-      - /tmp/test.log
+      - /tmp/testck.log
     parsers:
       - ndjson:
           target: ""

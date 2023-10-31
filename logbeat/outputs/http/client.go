@@ -20,6 +20,7 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/elastic/elastic-agent-libs/logp"
 	"github.com/elastic/elastic-agent-libs/transport/httpcommon"
 	"net/http"
@@ -158,13 +159,27 @@ func (c *client) publishEvents(ctx context.Context, data []publisher.Event) ([]p
 }
 
 func (c *client) doPublish(body any) error {
-	_, _, err := c.conn.RequestURL(http.MethodPost, c.url, body)
+	_, resp, err := c.conn.RequestURL(http.MethodPost, c.url, body)
 	if err != nil {
 		if err == ErrJSONEncodeFailed {
 			// don't retry unencodable values
 			return nil
 		}
 		return err
+	}
+
+	if c.channel == channelShushu {
+		fmt.Println(string(resp))
+		var result struct {
+			Code int `json:"code"`
+		}
+		err = json.Unmarshal(resp, &result)
+		if err != nil {
+			result.Code = 1
+		}
+		if result.Code != 0 {
+			c.conn.log.Errorf("shushu publish fail, code: %d", result.Code)
+		}
 	}
 
 	return nil

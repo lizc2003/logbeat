@@ -19,7 +19,7 @@ filebeat.inputs:
 #================================ clickhouse output ======================
 output.http:
   protocol: http
-  hosts: ["dev.metacard.gg:5080"]
+  hosts: ["10.45.11.35:5080"]
   path: /api/default/default/_json
   username: root@example.com
   password: gaLHq9KNXY5kc34V
