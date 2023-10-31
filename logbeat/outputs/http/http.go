@@ -19,6 +19,7 @@ func makeHttp(
 	cfg *config.C,
 ) (outputs.Group, error) {
 	log := logp.NewLogger(loggerName)
+	log.Infof("make httpout")
 
 	conf := defaultConfig
 	if err := cfg.Unpack(&conf); err != nil {
@@ -42,8 +43,6 @@ func makeHttp(
 			log.Errorf("Invalid host param set: %s, Error: %+v", host, err)
 			return outputs.Fail(err)
 		}
-
-		log.Info("Final host URL: " + hostURL)
 
 		var cli outputs.NetworkClient
 		cli, err = newClient(clientSettings{

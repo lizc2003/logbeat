@@ -1,7 +1,12 @@
 package clickhouse
 
+import "time"
+
 const (
 	loggerName = "clickhouse"
+
+	backoffInit = 1 * time.Second
+	backoffMax  = 60 * time.Second
 )
 
 type clickhouseConfig struct {

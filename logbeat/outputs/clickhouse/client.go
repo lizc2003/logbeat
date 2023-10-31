@@ -6,6 +6,7 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/elastic/beats/v7/libbeat/beat"
+	"github.com/elastic/beats/v7/libbeat/common/backoff"
 	"github.com/elastic/beats/v7/libbeat/outputs"
 	"github.com/elastic/beats/v7/libbeat/publisher"
 	"github.com/elastic/elastic-agent-libs/logp"
@@ -14,8 +15,6 @@ import (
 )
 
 type client struct {
-	log       *logp.Logger
-	observer  outputs.Observer
 	addr      []string
 	username  string
 	password  string
@@ -23,14 +22,22 @@ type client struct {
 	columns   []string
 	insertSql string
 
-	conn  driver.Conn
-	mutex sync.Mutex
+	mutex    sync.Mutex
+	log      *logp.Logger
+	conn     driver.Conn
+	observer outputs.Observer
+	done     chan struct{}
+	backoff  backoff.Backoff
 }
 
 func newClient(c clickhouseConfig, observer outputs.Observer) *client {
+	done := make(chan struct{})
+
 	return &client{
 		log:       logp.NewLogger(loggerName),
 		observer:  observer,
+		done:      done,
+		backoff:   backoff.NewEqualJitterBackoff(done, backoffInit, backoffMax),
 		addr:      c.Addr,
 		username:  c.Username,
 		password:  c.Password,
@@ -62,7 +69,13 @@ func (c *client) Connect() error {
 
 func (c *client) Close() error {
 	c.log.Infof("clickhouse connection close")
-	return c.conn.Close()
+	var err error
+	if c.conn != nil {
+		err = c.conn.Close()
+		c.conn = nil
+	}
+	close(c.done)
+	return err
 }
 
 func (c *client) String() string {
@@ -76,10 +89,11 @@ func (c *client) Publish(ctx context.Context, batch publisher.Batch) error {
 	if len(rest) != 0 {
 		c.observer.Failed(len(rest))
 		batch.RetryEvents(rest)
-		return err
+	} else {
+		batch.ACK()
 	}
 
-	batch.ACK()
+	backoff.WaitOnError(c.backoff, err)
 	return err
 }
 

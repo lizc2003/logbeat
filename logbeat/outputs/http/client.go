@@ -27,6 +27,7 @@ import (
 	"unsafe"
 
 	"github.com/elastic/beats/v7/libbeat/beat"
+	"github.com/elastic/beats/v7/libbeat/common/backoff"
 	"github.com/elastic/beats/v7/libbeat/outputs"
 	"github.com/elastic/beats/v7/libbeat/publisher"
 )
@@ -46,12 +47,15 @@ type clientSettings struct {
 }
 
 type client struct {
-	conn      *Connection
-	observer  outputs.Observer
 	url       string
 	batchMode bool
 	channel   string
 	appId     string
+
+	conn     *Connection
+	observer outputs.Observer
+	done     chan struct{}
+	backoff  backoff.Backoff
 }
 
 type eventRaw map[string]json.RawMessage
@@ -62,9 +66,13 @@ func newClient(s clientSettings) (*client, error) {
 		return nil, err
 	}
 
+	done := make(chan struct{})
+
 	cli := &client{
 		conn:      conn,
 		observer:  s.Observer,
+		done:      done,
+		backoff:   backoff.NewEqualJitterBackoff(done, backoffInit, backoffMax),
 		url:       s.URL,
 		batchMode: s.BatchMode,
 		channel:   s.Channel,
@@ -76,12 +84,16 @@ func newClient(s clientSettings) (*client, error) {
 
 // Connect establishes a connection to the clients sink.
 func (c *client) Connect() error {
+	c.conn.log.Info("Connect")
 	return c.conn.Connect()
 }
 
 // Close closes a connection.
 func (c *client) Close() error {
-	return c.conn.Close()
+	c.conn.log.Info("Close")
+	err := c.conn.Close()
+	close(c.done)
+	return err
 }
 
 func (c *client) String() string {
@@ -96,10 +108,11 @@ func (c *client) Publish(ctx context.Context, batch publisher.Batch) error {
 	if len(rest) != 0 {
 		c.observer.Failed(len(rest))
 		batch.RetryEvents(rest)
-		return err
+	} else {
+		batch.ACK()
 	}
 
-	batch.ACK()
+	backoff.WaitOnError(c.backoff, err)
 	return err
 }
 

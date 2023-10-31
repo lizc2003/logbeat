@@ -24,8 +24,11 @@ import (
 )
 
 const (
-	loggerName         = "httpout"
+	loggerName = "httpout"
+
 	idleConnectTimeout = 1 * time.Minute
+	backoffInit        = 1 * time.Second
+	backoffMax         = 60 * time.Second
 
 	channelShushu      = "shushu"
 	channelOpenObserve = "openobserve"
