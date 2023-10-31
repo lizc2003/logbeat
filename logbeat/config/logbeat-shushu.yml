@@ -1,0 +1,32 @@
+logging.level: info
+logging.metrics.enabled: false
+logging.to_stderr: true
+logging.to_files: false
+logging.files:
+  path: ./
+  name: logbeat
+  keepfiles: 7
+  permissions: 0644
+
+#=========================== Filebeat inputs =============================
+filebeat.inputs:
+  - type: filestream
+    id: test-ss
+    enabled: true
+    paths:
+      - /tmp/testss.log
+
+#================================ clickhouse output ======================
+output.http:
+  protocol: https
+  hosts: ["10.45.11.35"]
+  path: /sync_json
+  batch_mode: true
+  channel: shushu
+  app_id: "1111e0ae7cdb4fc59b9c62b112e01111"
+  headers:
+    user-agent: "ta-go-sdk"
+    version: "1.6.8"
+    compress: "none"
+    TA-Integration-Type: "Golang"
+    TA-Integration-Version: "1.6.8"
