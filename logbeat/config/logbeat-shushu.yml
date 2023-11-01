@@ -16,7 +16,7 @@ filebeat.inputs:
     paths:
       - /tmp/testss.log
 
-#================================ clickhouse output ======================
+#================================ http output ======================
 output.http:
   protocol: https
   hosts: ["10.45.11.35"]
