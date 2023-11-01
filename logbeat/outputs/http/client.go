@@ -20,7 +20,6 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/elastic/elastic-agent-libs/logp"
 	"github.com/elastic/elastic-agent-libs/transport/httpcommon"
 	"net/http"
@@ -159,7 +158,7 @@ func (c *client) publishEvents(ctx context.Context, data []publisher.Event) ([]p
 }
 
 func (c *client) doPublish(body any) error {
-	_, resp, err := c.conn.RequestURL(http.MethodPost, c.url, body)
+	_, _, err := c.conn.RequestURL(http.MethodPost, c.url, body)
 	if err != nil {
 		if err == ErrJSONEncodeFailed {
 			// don't retry unencodable values
@@ -168,19 +167,18 @@ func (c *client) doPublish(body any) error {
 		return err
 	}
 
-	if c.channel == channelShushu {
-		fmt.Println(string(resp))
-		var result struct {
-			Code int `json:"code"`
-		}
-		err = json.Unmarshal(resp, &result)
-		if err != nil {
-			result.Code = 1
-		}
-		if result.Code != 0 {
-			c.conn.log.Errorf("shushu publish fail, code: %d", result.Code)
-		}
-	}
+	//if c.channel == channelShushu {
+	//	var result struct {
+	//		Code int `json:"code"`
+	//	}
+	//	err = json.Unmarshal(resp, &result)
+	//	if err != nil {
+	//		result.Code = 1
+	//	}
+	//	if result.Code != 0 {
+	//		c.conn.log.Errorf("shushu publish fail, code: %d", result.Code)
+	//	}
+	//}
 
 	return nil
 }
@@ -215,6 +213,7 @@ func makeEvent(v beat.Event, channel string, appId string) (eventRaw, error) {
 
 	switch channel {
 	case channelShushu: // {"appid":"xxx","data":{}}
+		// doc: https://docs.thinkingdata.cn/ta-manual/latest/installation/installation_menu/restful_api.html#_2-2-%E6%95%B0%E6%8D%AE%E6%8E%A5%E6%94%B6%E6%8E%A5%E5%8F%A3-%E6%8F%90%E4%BA%A4%E6%96%B9%E5%BC%8F%E4%B8%BA-raw
 		ret = make(eventRaw)
 		ret["data"] = json.RawMessage(msgBody)
 		ret["appid"] = json.RawMessage(strings.Join([]string{"\"", appId, "\""}, ""))
