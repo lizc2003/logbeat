@@ -25,8 +25,4 @@ output.http:
   channel: shushu
   app_id: "1111e0ae7cdb4fc59b9c62b112e01111"
   headers:
-    user-agent: "ta-go-sdk"
-    version: "1.6.8"
-    compress: "none"
-    TA-Integration-Type: "Golang"
-    TA-Integration-Version: "1.6.8"
+    compress: none
