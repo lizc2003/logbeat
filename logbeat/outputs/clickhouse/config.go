@@ -1,6 +1,9 @@
 package clickhouse
 
-import "time"
+import (
+	"github.com/elastic/elastic-agent-libs/config"
+	"time"
+)
 
 const (
 	loggerName = "clickhouse"
@@ -11,12 +14,13 @@ const (
 )
 
 type clickhouseConfig struct {
-	Addr        []string `config:"addr"`
-	Username    string   `config:"username"`
-	Password    string   `config:"password"`
-	Table       string   `config:"table"`
-	Columns     []string `config:"columns"`
-	BulkMaxSize int      `config:"bulk_max_size"`
+	Addr        []string         `config:"addr"`
+	Username    string           `config:"username"`
+	Password    string           `config:"password"`
+	Table       string           `config:"table"`
+	Columns     []string         `config:"columns"`
+	BulkMaxSize int              `config:"bulk_max_size"`
+	Queue       config.Namespace `config:"queue"`
 }
 
 var (

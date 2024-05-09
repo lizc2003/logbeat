@@ -38,5 +38,5 @@ func makeClickhouse(
 	}
 
 	cli := newClient(conf, observer)
-	return outputs.SuccessNet(false, conf.BulkMaxSize, maxRetries, []outputs.NetworkClient{cli})
+	return outputs.SuccessNet(conf.Queue, false, conf.BulkMaxSize, maxRetries, []outputs.NetworkClient{cli})
 }

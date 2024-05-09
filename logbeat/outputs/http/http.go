@@ -63,5 +63,5 @@ func makeHttp(
 
 		clients[i] = cli
 	}
-	return outputs.SuccessNet(conf.LoadBalance, conf.BulkMaxSize, maxRetries, clients)
+	return outputs.SuccessNet(conf.Queue, conf.LoadBalance, conf.BulkMaxSize, maxRetries, clients)
 }

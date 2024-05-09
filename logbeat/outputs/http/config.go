@@ -19,6 +19,7 @@ package http
 
 import (
 	"errors"
+	"github.com/elastic/elastic-agent-libs/config"
 	"github.com/elastic/elastic-agent-libs/transport/httpcommon"
 	"time"
 )
@@ -53,6 +54,7 @@ type httpConfig struct {
 	BatchMode        bool              `config:"batch_mode"`
 	Channel          string            `config:"channel"`
 	AppId            string            `config:"app_id"`
+	Queue            config.Namespace  `config:"queue"`
 
 	Transport httpcommon.HTTPTransportSettings `config:",inline"`
 }

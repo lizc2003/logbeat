@@ -217,10 +217,11 @@ func makeEvent(v beat.Event, channel string, appId string) (eventRaw, error) {
 		ret = make(eventRaw)
 		ret["data"] = json.RawMessage(msgBody)
 		ret["appid"] = json.RawMessage(strings.Join([]string{"\"", appId, "\""}, ""))
-	case channelOpenObserve: // {"content":"xxx"}
+	case channelOpenObserve: // {"log":"xxx"}
+		// doc: https://openobserve.ai/docs/api/stream/setting/
 		ret = make(eventRaw)
 		b, _ := json.Marshal(msgBody)
-		ret["content"] = b
+		ret["log"] = b
 	default:
 		if err = json.Unmarshal(UnsafeStr2Bytes(msgBody), &ret); err != nil {
 			return nil, err
