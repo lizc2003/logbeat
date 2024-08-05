@@ -28,19 +28,15 @@ import (
 type bodyEncoder interface {
 	bulkBodyEncoder
 	Reader() io.Reader
-	Marshal(doc interface{}) error
+	Marshal(doc any) error
 }
 
 type bulkBodyEncoder interface {
-	bulkWriter
+	Add(meta, obj any) error
+	AddRaw(raw any) error
 
 	AddHeader(*http.Header)
 	Reset()
-}
-
-type bulkWriter interface {
-	Add(meta, obj interface{}) error
-	AddRaw(raw interface{}) error
 }
 
 type jsonEncoder struct {
@@ -71,18 +67,18 @@ func (b *jsonEncoder) Reader() io.Reader {
 	return b.buf
 }
 
-func (b *jsonEncoder) Marshal(obj interface{}) error {
+func (b *jsonEncoder) Marshal(obj any) error {
 	b.Reset()
 	enc := json.NewEncoder(b.buf)
 	return enc.Encode(obj)
 }
 
-func (b *jsonEncoder) AddRaw(raw interface{}) error {
+func (b *jsonEncoder) AddRaw(raw any) error {
 	enc := json.NewEncoder(b.buf)
 	return enc.Encode(raw)
 }
 
-func (b *jsonEncoder) Add(meta, obj interface{}) error {
+func (b *jsonEncoder) Add(meta, obj any) error {
 	enc := json.NewEncoder(b.buf)
 	pos := b.buf.Len()
 
@@ -124,19 +120,19 @@ func (b *gzipEncoder) AddHeader(header *http.Header) {
 	header.Add("Content-Encoding", "gzip")
 }
 
-func (b *gzipEncoder) Marshal(obj interface{}) error {
+func (b *gzipEncoder) Marshal(obj any) error {
 	b.Reset()
 	enc := json.NewEncoder(b.gzip)
 	err := enc.Encode(obj)
 	return err
 }
 
-func (b *gzipEncoder) AddRaw(raw interface{}) error {
+func (b *gzipEncoder) AddRaw(raw any) error {
 	enc := json.NewEncoder(b.gzip)
 	return enc.Encode(raw)
 }
 
-func (b *gzipEncoder) Add(meta, obj interface{}) error {
+func (b *gzipEncoder) Add(meta, obj any) error {
 	enc := json.NewEncoder(b.gzip)
 	pos := b.buf.Len()
 
@@ -153,7 +149,7 @@ func (b *gzipEncoder) Add(meta, obj interface{}) error {
 	return nil
 }
 
-func bulkEncode(out bodyEncoder, body []interface{}) error {
+func bulkEncode(out bodyEncoder, body []any) error {
 	out.Reset()
 	for _, obj := range body {
 		if err := out.AddRaw(obj); err != nil {

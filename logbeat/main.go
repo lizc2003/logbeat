@@ -23,7 +23,6 @@ import (
 	"github.com/elastic/beats/v7/filebeat/cmd"
 	inputs "github.com/elastic/beats/v7/filebeat/input/default-inputs"
 
-	_ "logbeat/outputs/clickhouse"
 	_ "logbeat/outputs/http"
 )
 

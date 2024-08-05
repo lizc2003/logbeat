@@ -58,8 +58,6 @@ type client struct {
 	backoff  backoff.Backoff
 }
 
-type eventRaw map[string]json.RawMessage
-
 func newClient(s clientSettings) (*client, error) {
 	conn, err := NewConnection(&s)
 	if err != nil {
@@ -160,7 +158,7 @@ func (c *client) publishEvents(ctx context.Context, data []publisher.Event) ([]p
 func (c *client) doPublish(body any) error {
 	_, _, err := c.conn.RequestURL(http.MethodPost, c.url, body)
 	if err != nil {
-		if err == ErrJSONEncodeFailed {
+		if err == ErrEncodeFailed {
 			// don't retry unencodable values
 			return nil
 		}
@@ -222,6 +220,9 @@ func makeEvent(v beat.Event, channel string, appId string) (eventRaw, error) {
 		ret = make(eventRaw)
 		b, _ := json.Marshal(msgBody)
 		ret["log"] = b
+	case channelSa:
+		ret = make(eventRaw)
+		ret[originMsgKey] = json.RawMessage(msgBody)
 	default:
 		if err = json.Unmarshal(UnsafeStr2Bytes(msgBody), &ret); err != nil {
 			return nil, err

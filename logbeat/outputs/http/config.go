@@ -34,12 +34,13 @@ const (
 
 	channelShushu      = "shushu"
 	channelOpenObserve = "openobserve"
+	channelSa          = "sa"
 )
 
 var (
-	ErrNotConnected     = errors.New("not connected")      // failure due to client having no valid connection
-	ErrJSONEncodeFailed = errors.New("json encode failed") // encoding failures
-	ErrEmptyMessage     = errors.New("empty message")
+	ErrNotConnected = errors.New("not connected")         // failure due to client having no valid connection
+	ErrEncodeFailed = errors.New("message encode failed") // encoding failures
+	ErrEmptyMessage = errors.New("empty message")
 )
 
 type httpConfig struct {

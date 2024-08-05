@@ -40,13 +40,17 @@ func NewConnection(s *clientSettings) (*Connection, error) {
 	log.Infof("url: %s", s.URL)
 
 	var encoder bodyEncoder
-	compression := s.CompressionLevel
-	if compression == 0 {
-		encoder = newJSONEncoder(nil)
+	if s.Channel == channelSa {
+		encoder = newSaEncoder(nil)
 	} else {
-		encoder, err = newGzipEncoder(compression, nil)
-		if err != nil {
-			return nil, err
+		compression := s.CompressionLevel
+		if compression == 0 {
+			encoder = newJSONEncoder(nil)
+		} else {
+			encoder, err = newGzipEncoder(compression, nil)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -82,7 +86,7 @@ func (conn *Connection) Close() error {
 
 func (conn *Connection) Bulk(
 	url string,
-	body []interface{},
+	body []any,
 ) (int, []byte, error) {
 	if len(body) == 0 {
 		return 0, nil, nil
@@ -90,7 +94,7 @@ func (conn *Connection) Bulk(
 
 	if err := bulkEncode(conn.encoder, body); err != nil {
 		conn.log.Warnf("Failed to json bulk body (%v)", err)
-		return 0, nil, ErrJSONEncodeFailed
+		return 0, nil, ErrEncodeFailed
 	}
 
 	return conn.execRequest(http.MethodPost, url, conn.encoder.Reader())
@@ -98,7 +102,7 @@ func (conn *Connection) Bulk(
 
 func (conn *Connection) RequestURL(
 	method, url string,
-	body interface{},
+	body any,
 ) (int, []byte, error) {
 	if body == nil {
 		return conn.execRequest(method, url, nil)
@@ -106,7 +110,7 @@ func (conn *Connection) RequestURL(
 
 	if err := conn.encoder.Marshal(body); err != nil {
 		conn.log.Warnf("Failed to json body (%v): %#v", err, body)
-		return 0, nil, ErrJSONEncodeFailed
+		return 0, nil, ErrEncodeFailed
 	}
 	return conn.execRequest(method, url, conn.encoder.Reader())
 }
@@ -127,7 +131,7 @@ func (conn *Connection) execRequest(
 }
 
 func (conn *Connection) execHTTPRequest(req *http.Request) (int, []byte, error) {
-	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Accept", "application/json, */*")
 
 	if conn.username != "" || conn.password != "" {
 		req.SetBasicAuth(conn.username, conn.password)

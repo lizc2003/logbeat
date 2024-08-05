@@ -38,7 +38,7 @@ func makeHttp(
 
 	clients := make([]outputs.NetworkClient, len(hosts))
 	for i, host := range hosts {
-		hostURL, err := common.MakeURL(conf.Protocol, conf.Path, host, 0)
+		hostURL, err := common.MakeURL(conf.Protocol, "/", host+conf.Path, 0)
 		if err != nil {
 			log.Errorf("Invalid host param set: %s, Error: %+v", host, err)
 			return outputs.Fail(err)
@@ -63,5 +63,5 @@ func makeHttp(
 
 		clients[i] = cli
 	}
-	return outputs.SuccessNet(conf.Queue, conf.LoadBalance, conf.BulkMaxSize, maxRetries, clients)
+	return outputs.SuccessNet(conf.Queue, conf.LoadBalance, conf.BulkMaxSize, maxRetries, nil, clients)
 }

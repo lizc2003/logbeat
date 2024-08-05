@@ -1,0 +1,26 @@
+logging.level: info
+logging.metrics.enabled: false
+logging.to_stderr: true
+logging.to_files: false
+logging.files:
+  path: ./
+  name: logbeat
+  keepfiles: 7
+  permissions: 0644
+
+#=========================== Filebeat inputs =============================
+filebeat.inputs:
+  - type: filestream
+    id: test-sa
+    enabled: true
+    paths:
+      - /tmp/testsa.log
+
+#================================ http output ======================
+output.http:
+  protocol: http
+  hosts: ["127.0.0.1:8106"]
+  path: /sa?project=skm&token=oSxsYvdOW5RXcnZ1
+  batch_mode: true
+  bulk_max_size: 50
+  channel: sa
