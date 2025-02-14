@@ -252,31 +252,32 @@ func getMessageBody(v beat.Event) (string, error) {
 
 func getTraceId(msg string) string {
 	var ret string
-	idx := strings.Index(msg, "trace_id:")
+	idx := strings.Index(msg, "\"trace_id\":") // for json msg
 	if idx >= 0 {
-		idx += 9
+		idx += 11
 		if msg[idx] == ' ' {
 			idx++
 		}
 		ret = msg[idx:]
-		idx = strings.IndexAny(ret, " \t")
+		idx = strings.IndexAny(ret, ",}")
 		if idx >= 0 {
-			ret = ret[:idx]
+			ret = strings.Trim(ret[:idx], " \"")
+		} else {
+			ret = ""
 		}
 	} else {
-		idx = strings.Index(msg, "\"trace_id\":") // for json msg
+		idx = strings.Index(msg, "trace_id:")
 		if idx >= 0 {
-			idx += 11
+			idx += 9
 			if msg[idx] == ' ' {
 				idx++
 			}
 			ret = msg[idx:]
-			idx = strings.IndexAny(ret, ",}")
+			idx = strings.IndexAny(ret, " \t")
 			if idx >= 0 {
-				ret = strings.Trim(ret[:idx], " \"")
-			} else {
-				ret = ""
+				ret = ret[:idx]
 			}
+			ret = strings.Trim(ret, " \"")
 		}
 	}
 
