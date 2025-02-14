@@ -220,6 +220,10 @@ func makeEvent(v beat.Event, channel string, appId string) (eventRaw, error) {
 		ret = make(eventRaw)
 		b, _ := json.Marshal(msgBody)
 		ret["log"] = b
+		traceId := getTraceId(msgBody)
+		if traceId != "" {
+			ret["trace_id"] = json.RawMessage(strings.Join([]string{"\"", traceId, "\""}, ""))
+		}
 	case channelSa:
 		ret = make(eventRaw)
 		ret[originMsgKey] = json.RawMessage(msgBody)
@@ -244,6 +248,42 @@ func getMessageBody(v beat.Event) (string, error) {
 		}
 	}
 	return "", ErrEmptyMessage
+}
+
+func getTraceId(msg string) string {
+	var ret string
+	idx := strings.Index(msg, "trace_id:")
+	if idx >= 0 {
+		idx += 9
+		if msg[idx] == ' ' {
+			idx++
+		}
+		ret = msg[idx:]
+		idx = strings.IndexAny(ret, " \t")
+		if idx >= 0 {
+			ret = ret[:idx]
+		}
+	} else {
+		idx = strings.Index(msg, "\"trace_id\":") // for json msg
+		if idx >= 0 {
+			idx += 11
+			if msg[idx] == ' ' {
+				idx++
+			}
+			ret = msg[idx:]
+			idx = strings.IndexAny(ret, ",}")
+			if idx >= 0 {
+				ret = strings.Trim(ret[:idx], " \"")
+			} else {
+				ret = ""
+			}
+		}
+	}
+
+	if len(ret) > 64 || strings.IndexByte(ret, ':') >= 0 {
+		return ""
+	}
+	return ret
 }
 
 func UnsafeStr2Bytes(s string) []byte {
