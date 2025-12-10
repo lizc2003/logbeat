@@ -19,7 +19,7 @@ filebeat.inputs:
       path: ~  # based on filepath, not used for logs that rotate
     close:
       on_state_change:
-        inactive: 60m 
+        inactive: 60m
 
 #================================ http output ======================
 output.http:
