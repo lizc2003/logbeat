@@ -16,7 +16,10 @@ filebeat.inputs:
     paths:
       - /tmp/testsa.log
     file_identity:
-      path: ~  # based on filepath, not used for logs that automatically rotate
+      path: ~  # based on filepath, not used for logs that rotate
+    close:
+      on_state_change:
+        inactive: 60m 
 
 #================================ http output ======================
 output.http:
