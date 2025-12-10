@@ -15,6 +15,8 @@ filebeat.inputs:
     enabled: true
     paths:
       - /tmp/testsa.log
+    file_identity:
+      path: ~  # based on filepath, not used for logs that automatically rotate
 
 #================================ http output ======================
 output.http:
