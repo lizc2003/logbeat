@@ -17,6 +17,7 @@ filebeat.inputs:
       - /tmp/testsa.log
     file_identity:
       path: ~  # based on filepath, not used for logs that rotate
+    ignore_older: 24h # must greater than close.on_state_change.inactive
     close:
       on_state_change:
         inactive: 60m
